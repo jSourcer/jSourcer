@@ -2,7 +2,7 @@ plugins {
     java
 }
 
-group = "de.jsourcer"
+group = "de.jSourcer"
 version = "1.0-SNAPSHOT"
 
 repositories {

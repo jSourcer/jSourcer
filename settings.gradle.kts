@@ -1,2 +1,2 @@
-rootProject.name = "jsourcer-core"
+rootProject.name = "jSourcer-parser"
 
