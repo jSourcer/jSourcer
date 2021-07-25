@@ -1,5 +1,7 @@
 package de.jsourcer.parser.types;
 
+import org.jetbrains.annotations.NotNull;
+
 public enum ModifierType {
     PUBLIC,
     PRIVATE,
@@ -13,7 +15,8 @@ public enum ModifierType {
     ABSTRACT,
     STRICTFP;
 
-    public static ModifierType getModifier(String word) {
+    @NotNull
+    public static ModifierType getModifier(@NotNull String word) {
         return ModifierType.valueOf(word.toUpperCase());
     }
 

@@ -3,13 +3,14 @@ package de.jsourcer.parser.util;
 import de.jsourcer.parser.misc.IndexedCharArray;
 import de.jsourcer.parser.misc.LastCharacters;
 import de.jsourcer.parser.misc.wrapped.WrappedChar;
+import org.jetbrains.annotations.NotNull;
 
 public final class CharSequenceSkipper {
 
     private CharSequenceSkipper() {
     }
 
-    public static void skipString(IndexedCharArray charArray) {
+    public static void skipString(@NotNull IndexedCharArray charArray) {
         boolean isTextBlock = (charArray.size() > 6) && CharArrayUtil.startWith(charArray, "\"\"\"");
         LastCharacters last = new LastCharacters(new char[3]);
         charArray.indexLoop((c, integer) -> {
@@ -28,7 +29,7 @@ public final class CharSequenceSkipper {
         });
     }
 
-    public static void skipCharacter(IndexedCharArray charArray) {
+    public static void skipCharacter(@NotNull IndexedCharArray charArray) {
         WrappedChar last = new WrappedChar();
         charArray.indexLoop((c, integer) -> {
             if (last.get() != '\u0000') {

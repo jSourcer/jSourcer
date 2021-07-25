@@ -1,6 +1,6 @@
 package de.jsourcer.parser.misc.wrapped;
 
-public class WrappedChar{
+public class WrappedChar {
     private char character;
 
     public WrappedChar(char character) {

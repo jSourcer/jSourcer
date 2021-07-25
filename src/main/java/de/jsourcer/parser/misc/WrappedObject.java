@@ -1,9 +1,11 @@
 package de.jsourcer.parser.misc;
 
+import org.jetbrains.annotations.Nullable;
+
 public class WrappedObject<T> {
     private T object;
 
-    public WrappedObject(T object) {
+    public WrappedObject(@Nullable T object) {
         this.object = object;
     }
 
@@ -15,10 +17,11 @@ public class WrappedObject<T> {
         return object != null;
     }
 
-    public void set(T t) {
+    public void set(@Nullable T t) {
         object = t;
     }
 
+    @Nullable
     public T get() {
         return object;
     }

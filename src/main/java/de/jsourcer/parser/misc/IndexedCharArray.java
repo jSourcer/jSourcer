@@ -1,10 +1,12 @@
 package de.jsourcer.parser.misc;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.function.BiFunction;
 
 public class IndexedCharArray {
     private final char[] chars;
-    private int index = -1;
+    private int index;
     private final int lastIndex;
 
     public IndexedCharArray(char[] chars, int lastIndex) {
@@ -21,23 +23,24 @@ public class IndexedCharArray {
         this.lastIndex = lastIndex;
     }
 
-    public static IndexedCharArray ofString(String text) {
+    @NotNull
+    public static IndexedCharArray ofString(@NotNull String text) {
         return new IndexedCharArray(text.toCharArray());
     }
 
-    public void indexLoop(BiFunction<Character, Integer, Boolean> task) {
+    public void indexLoop(@NotNull BiFunction<Character, Integer, Boolean> task) {
         while (expectedNextIndex() < lastIndex) {
             nextIndex();
-            if(task.apply(chars[index], index)) return;
+            if (task.apply(chars[index], index)) return;
         }
     }
 
-    public void decoupledIndexLoop(BiFunction<Character, Integer, Boolean> task) {
+    public void decoupledIndexLoop(@NotNull BiFunction<Character, Integer, Boolean> task) {
         decoupledIndexLoop(0, task);
     }
 
-    public void decoupledIndexLoop(int indexModifier, BiFunction<Character, Integer, Boolean> task) {
-        new IndexedCharArray(chars, index+indexModifier, lastIndex).indexLoop(task);
+    public void decoupledIndexLoop(int indexModifier, @NotNull BiFunction<Character, Integer, Boolean> task) {
+        new IndexedCharArray(chars, index + indexModifier, lastIndex).indexLoop(task);
     }
 
     public int getIndex() {
@@ -49,7 +52,7 @@ public class IndexedCharArray {
     }
 
     public int expectedNextIndex() {
-        return index+1;
+        return index + 1;
     }
 
     public void nextIndex() {
@@ -65,7 +68,7 @@ public class IndexedCharArray {
     }
 
     public int size() {
-        return lastIndex-index;
+        return lastIndex - index;
     }
 
     public char currentChar() {
@@ -73,8 +76,6 @@ public class IndexedCharArray {
     }
 
     public void modifyIndex(int modifier) {
-        index = index+modifier;
+        index = index + modifier;
     }
-
-
 }

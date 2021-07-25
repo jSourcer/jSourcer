@@ -1,7 +1,10 @@
 package de.jsourcer.parser.elements;
 
-public class ExtendsElement extends AbstractElement{
-    public ExtendsElement(String value) {
+import org.jetbrains.annotations.NotNull;
+
+public class ExtendsElement extends AbstractElement {
+
+    public ExtendsElement(@NotNull String value) {
         super(value);
     }
 }

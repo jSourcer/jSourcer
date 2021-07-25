@@ -7,7 +7,7 @@ public class Counter {
         this.counter = counter;
     }
 
-    public Counter(){
+    public Counter() {
         this(0);
     }
 

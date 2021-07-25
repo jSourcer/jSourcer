@@ -1,5 +1,7 @@
 package de.jsourcer.parser.types;
 
+import org.jetbrains.annotations.NotNull;
+
 public enum ClazzType {
     STANDARD("class"),
     INTERFACE("interface"),
@@ -12,7 +14,8 @@ public enum ClazzType {
         this.identifier = identifier;
     }
 
-    public static ClazzType getType(String identifier) {
+    @NotNull
+    public static ClazzType getType(@NotNull String identifier) {
         for (ClazzType value : values()) {
             if (value.identifier.equals(identifier)) return value;
         }

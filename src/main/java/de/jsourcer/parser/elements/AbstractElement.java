@@ -2,15 +2,17 @@ package de.jsourcer.parser.elements;
 
 import de.jsourcer.parser.types.ClazzType;
 import de.jsourcer.parser.types.ModifierType;
+import org.jetbrains.annotations.NotNull;
 
 public class AbstractElement {
     protected final String value;
 
-    public AbstractElement(String value) {
+    public AbstractElement(@NotNull String value) {
         this.value = value;
     }
 
-    public static AbstractElement findElement(String value) {
+    @NotNull
+    public static AbstractElement findElement(@NotNull String value) {
         return switch (value) {
             case "package" -> new PackageElement(value);
             case "import" -> new ImportElement(value);
@@ -24,6 +26,7 @@ public class AbstractElement {
         };
     }
 
+    @NotNull
     public String getValue() {
         return value;
     }
