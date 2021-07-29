@@ -17,7 +17,9 @@ public enum ClazzType {
     @NotNull
     public static ClazzType getType(@NotNull String identifier) {
         for (ClazzType value : values()) {
-            if (value.identifier.equals(identifier)) return value;
+            if (value.identifier.equals(identifier)) {
+                return value;
+            }
         }
         throw new EnumConstantNotPresentException(ClazzType.class, identifier);
     }

@@ -2,7 +2,7 @@ package de.jsourcer.parser.objects;
 
 public enum AccessModifier {
     PRIVATE,
-    DEFAULT,
+    PACKAGE_PRIVATE,
     PROTECTED,
     PUBLIC
 }

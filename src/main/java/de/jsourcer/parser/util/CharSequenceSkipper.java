@@ -1,6 +1,6 @@
 package de.jsourcer.parser.util;
 
-import de.jsourcer.parser.misc.IndexedCharArray;
+import de.jsourcer.parser.misc.FunctionalCharArray;
 import de.jsourcer.parser.misc.LastCharacters;
 import de.jsourcer.parser.misc.wrapped.WrappedChar;
 import org.jetbrains.annotations.NotNull;
@@ -10,8 +10,9 @@ public final class CharSequenceSkipper {
     private CharSequenceSkipper() {
     }
 
-    public static void skipString(@NotNull IndexedCharArray charArray) {
-        boolean isTextBlock = (charArray.size() > 6) && CharArrayUtil.startWith(charArray, "\"\"\"");
+    public static void skipString(@NotNull FunctionalCharArray charArray) {
+        boolean isTextBlock =
+            (charArray.size() > 6) && CharArrayUtil.startWith(charArray, "\"\"\"");
         LastCharacters last = new LastCharacters(new char[3]);
         charArray.indexLoop((c, integer) -> {
             if (last.get(0) != '\u0000') {
@@ -19,7 +20,8 @@ public final class CharSequenceSkipper {
                     return true;
                 }
                 if (last.get(1) != '\u0000' && last.get(2) != '\u0000') {
-                    if (last.get(0) == '"' && last.get(1) == '"' && last.get(2) != '\\' && c == '"') {
+                    if (last.get(0) == '"' && last.get(1) == '"' && last.get(2) != '\\'
+                        && c == '"') {
                         return true;
                     }
                 }
@@ -29,7 +31,7 @@ public final class CharSequenceSkipper {
         });
     }
 
-    public static void skipCharacter(@NotNull IndexedCharArray charArray) {
+    public static void skipCharacter(@NotNull FunctionalCharArray charArray) {
         WrappedChar last = new WrappedChar();
         charArray.indexLoop((c, integer) -> {
             if (last.get() != '\u0000') {

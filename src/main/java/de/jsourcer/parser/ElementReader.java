@@ -6,15 +6,15 @@ import de.jsourcer.parser.elements.GenericsElement;
 import de.jsourcer.parser.elements.ScopeElement;
 import de.jsourcer.parser.elements.SeparatorElement;
 import de.jsourcer.parser.misc.Buffer;
-import de.jsourcer.parser.misc.IndexedCharArray;
+import de.jsourcer.parser.misc.FunctionalCharArray;
 import de.jsourcer.parser.util.BuilderUtil;
 import org.jetbrains.annotations.NotNull;
-
 public class ElementReader {
+
     private final StringBuilder elementBuilder = new StringBuilder();
     private final Buffer<AbstractElement> buffer = new Buffer<>();
 
-    public void readNextElement(@NotNull IndexedCharArray charArray) {
+    public void readNextElement(@NotNull FunctionalCharArray charArray) {
         charArray.indexLoop((character, integer) -> {
             if (character == '(') {
                 saveElement();
@@ -41,6 +41,7 @@ public class ElementReader {
             }
 
             if (Character.isWhitespace(character)) {
+                if(elementBuilder.isEmpty()) return false;
                 saveElement();
                 return true;
             }

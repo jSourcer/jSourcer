@@ -4,6 +4,7 @@ import de.jsourcer.parser.types.ModifierType;
 import org.jetbrains.annotations.NotNull;
 
 public class ModifierElement extends AbstractElement {
+
     private final ModifierType modifierType;
 
     public ModifierElement(@NotNull String value, @NotNull ModifierType modifierType) {

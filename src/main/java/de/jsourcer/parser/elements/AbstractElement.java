@@ -5,6 +5,7 @@ import de.jsourcer.parser.types.ModifierType;
 import org.jetbrains.annotations.NotNull;
 
 public class AbstractElement {
+
     protected final String value;
 
     public AbstractElement(@NotNull String value) {
@@ -17,9 +18,11 @@ public class AbstractElement {
             case "package" -> new PackageElement(value);
             case "import" -> new ImportElement(value);
             case "public", "private", "protected", "static",
-                    "final", "synchronized", "volatile", "transient",
-                    "native", "abstract", "strictfp" -> new ModifierElement(value, ModifierType.getModifier(value));
-            case "class", "interface", "enum", "record" -> new ClazzElement(value, ClazzType.getType(value));
+                "final", "synchronized", "volatile", "transient",
+                "native", "abstract", "strictfp" -> new ModifierElement(value,
+                ModifierType.getModifier(value));
+            case "class", "interface", "enum", "record" -> new ClazzElement(value,
+                ClazzType.getType(value));
             case "implements" -> new ImplementsElement(value);
             case "extends" -> new ExtendsElement(value);
             default -> NoneElement.parse(value);

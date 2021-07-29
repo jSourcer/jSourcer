@@ -1,13 +1,16 @@
 package de.jsourcer.parser.misc;
 
 import de.jsourcer.parser.util.Checks;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+public class Buffer<T> implements Iterable<T>{
 
-public class Buffer<T> {
     private final List<T> buffer = new ArrayList<>();
 
     public boolean isValid(int index) {
@@ -35,7 +38,32 @@ public class Buffer<T> {
     @Nullable
     public T getLatest() {
         int index = buffer.size() - 1;
-        if (!isValid(index)) return null;
+        if (!isValid(index)) {
+            return null;
+        }
         return buffer.get(index);
+    }
+
+    @NotNull
+    @Override
+    public Iterator<T> iterator() {
+        return buffer.iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super T> action) {
+        buffer.forEach(action);
+    }
+
+    @Override
+    public Spliterator<T> spliterator() {
+        return buffer.spliterator();
+    }
+
+    @Override
+    public String toString() {
+        return "Buffer{" +
+            "buffer=" + buffer +
+            '}';
     }
 }

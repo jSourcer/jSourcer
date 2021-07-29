@@ -3,6 +3,7 @@ package de.jsourcer.parser.objects.javafile.header;
 import org.jetbrains.annotations.NotNull;
 
 public class Import {
+
     private final String path;
     private final boolean staticImport;
 
@@ -23,8 +24,8 @@ public class Import {
     @Override
     public String toString() {
         return "Import{" +
-                "path='" + path + '\'' +
-                ", staticImport=" + staticImport +
-                '}';
+            "path='" + path + '\'' +
+            ", staticImport=" + staticImport +
+            '}';
     }
 }

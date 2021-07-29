@@ -1,6 +1,7 @@
-package de.jsourcer.parser.misc;
+package de.jsourcer.parser.misc.counter;
 
 public class Counter {
+
     private int counter;
 
     public Counter(int counter) {

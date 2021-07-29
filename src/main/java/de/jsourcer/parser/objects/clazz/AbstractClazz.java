@@ -1,52 +1,66 @@
 package de.jsourcer.parser.objects.clazz;
 
-
 import de.jsourcer.parser.elements.AbstractElement;
-import de.jsourcer.parser.elements.ArgumentElement;
 import de.jsourcer.parser.elements.ClazzElement;
 import de.jsourcer.parser.elements.ExtendsElement;
 import de.jsourcer.parser.elements.GenericsElement;
 import de.jsourcer.parser.elements.ImplementsElement;
 import de.jsourcer.parser.elements.ModifierElement;
 import de.jsourcer.parser.elements.NoneElement;
+import de.jsourcer.parser.elements.ScopeElement;
 import de.jsourcer.parser.misc.Buffer;
 import de.jsourcer.parser.objects.AccessModifier;
-import de.jsourcer.parser.objects.Variable;
+import de.jsourcer.parser.objects.clazz.name.ClazzName;
+import de.jsourcer.parser.objects.clazz.name.GenericClazzName;
+import de.jsourcer.parser.objects.Scope;
+import de.jsourcer.parser.objects.clazz.types.EnumClazz;
+import de.jsourcer.parser.objects.clazz.types.InterfaceClazz;
+import de.jsourcer.parser.objects.clazz.types.RecordClazz;
+import de.jsourcer.parser.objects.clazz.types.StandardClazz;
 import de.jsourcer.parser.objects.javafile.JavaFile;
 import de.jsourcer.parser.types.ClazzType;
 import de.jsourcer.parser.types.ModifierType;
+import de.jsourcer.parser.util.Checks;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 public class AbstractClazz {
-    protected final JavaFile rootFile;
-    protected final AbstractClazz parent;
+    protected final JavaFile parentFile;
+    protected final ClazzName name;
     protected final AccessModifier accessModifier;
-    protected final String name;
-    protected final List<ModifierType> modifiers;
-    protected final String extendsClazz;
-    protected final Set<String> implementsClazzes;
+    protected final ModifierType[] otherModifier;
+    protected final AbstractClazz parentClazz;
+    protected final ClazzName superClazz;
+    protected final ClazzName[] superInterfaces;
+    protected final Scope scope;
 
-    public AbstractClazz(@NotNull JavaFile rootFile, @Nullable AbstractClazz parent, @NotNull AccessModifier accessModifier,
-                         @NotNull String name, @NotNull List<ModifierType> modifiers, @Nullable String extendsClazz,
-                         @NotNull Set<String> implementsClazzes) {
-        this.rootFile = rootFile;
-        this.parent = parent;
-        this.accessModifier = accessModifier;
+
+    public AbstractClazz(@NotNull JavaFile parentFile, @NotNull ClazzName name,
+        @NotNull AccessModifier accessModifier, @NotNull ModifierType[] otherModifier,
+        @Nullable AbstractClazz parentClazz,
+        ClazzName superClazz, ClazzName[] superInterfaces,
+        @NotNull Scope scope) {
+        this.parentFile = parentFile;
         this.name = name;
-        this.modifiers = modifiers;
-        this.extendsClazz = extendsClazz;
-        this.implementsClazzes = implementsClazzes;
+        this.accessModifier = accessModifier;
+        this.otherModifier = otherModifier;
+        this.parentClazz = parentClazz;
+        this.superClazz = superClazz;
+        this.superInterfaces = superInterfaces;
+        this.scope = scope;
     }
 
     @NotNull
-    public String getName() {
+    public Optional<AbstractClazz> getParentClazz() {
+        return Optional.ofNullable(parentClazz);
+    }
+
+    @NotNull
+    public ClazzName getName() {
         return name;
     }
 
@@ -56,85 +70,130 @@ public class AbstractClazz {
     }
 
     @NotNull
-    public JavaFile getRootFile() {
-        return rootFile;
+    public JavaFile getParentFile() {
+        return parentFile;
     }
 
     @NotNull
-    public List<ModifierType> getModifiers() {
-        return modifiers;
+    public ModifierType[] getOtherModifier() {
+        return otherModifier;
     }
 
     @NotNull
-    public Optional<AbstractClazz> getParent() {
-        return Optional.ofNullable(parent);
+    public Scope getScope() {
+        return scope;
     }
 
     @NotNull
-    public Optional<String> getExtendsClazz() {
-        return Optional.ofNullable(extendsClazz);
+    public Optional<ClazzName> getSuperClazz() {
+        return Optional.ofNullable(superClazz);
     }
 
     @NotNull
-    public Set<String> getImplementsClazzes() {
-        return implementsClazzes;
+    public ClazzName[] getSuperInterfaces() {
+        return superInterfaces;
     }
 
-    @NotNull
-    public static Optional<AbstractClazz> parse(@NotNull Buffer<AbstractElement> buffer, @NotNull JavaFile rootFile, @Nullable AbstractClazz parent) {
+    @Override
+    public String toString() {
+        return "AbstractClazz{" +
+            "parentFile=" + parentFile +
+            ", name=" + name +
+            ", accessModifier=" + accessModifier +
+            ", otherModifier=" + Arrays.toString(otherModifier) +
+            ", parentClazz=" + parentClazz +
+            ", superClazz=" + superClazz +
+            ", superInterfaces=" + Arrays.toString(superInterfaces) +
+            ", scope=" + scope +
+            '}';
+    }
+
+    public static AbstractClazz parse(@NotNull Buffer<AbstractElement> buffer, @Nullable AbstractClazz parent, @NotNull JavaFile javaFile) {
+        ClazzName name = null;
+        AccessModifier accessModifier = AccessModifier.PACKAGE_PRIVATE;
+        List<ModifierType> otherModifiers = new ArrayList<>();
+        ClazzName superClazz = null;
+        List<ClazzName> superInterfaces = new ArrayList<>();
+        Scope scope = null;
         ClazzType type = null;
-        AccessModifier accessModifier = AccessModifier.DEFAULT;
-        List<ModifierType> modifiers = new ArrayList<>();
-        String name = null;
-        String extendsClazz = null;
-        Set<String> implementsClazzes = new HashSet<>();
-        Set<String> generics = new HashSet<>();
-        List<Variable> arguments = new ArrayList<>();
 
         for (int i = 0; i < buffer.size(); i++) {
             AbstractElement element = buffer.get(i);
-            if (element instanceof ClazzElement clazzElement) {
+            if(element instanceof ModifierElement modifierElement) {
+                if(modifierElement.getModifier().isAccessModifier()) {
+                    accessModifier = AccessModifier.valueOf(modifierElement.getModifier().name());
+                }else {
+                    otherModifiers.add(modifierElement.getModifier());
+                }
+                continue;
+            }
+
+            if(element instanceof ClazzElement clazzElement) {
                 type = clazzElement.getType();
                 continue;
             }
-            if (element instanceof NoneElement noneElement) {
-                name = noneElement.getValue();
+
+            if(element instanceof NoneElement) {
+                ParseReturn parseReturn = parseClazzName(buffer, --i);
+                i = parseReturn.index;
+                name = parseReturn.name;
                 continue;
             }
-            if (element instanceof ExtendsElement) {
-                extendsClazz = buffer.get(++i).getValue();
-                continue;
+
+            if(element instanceof ExtendsElement) {
+                ParseReturn parseReturn = parseClazzName(buffer, i);
+                i = parseReturn.index;
+                superClazz = parseReturn.name;
             }
-            if (element instanceof ImplementsElement) {
-                while (buffer.get(i + 1) instanceof NoneElement noneElement) {
-                    implementsClazzes.add(noneElement.getValue());
-                    i++;
-                }
-                continue;
+
+            if(element instanceof ImplementsElement) {
+                do {
+                    ParseReturn parseReturn = parseClazzName(buffer, i);
+                    i = parseReturn.index;
+                    superInterfaces.add(parseReturn.name);
+                } while (buffer.get(i+1) instanceof NoneElement);
             }
-            if (element instanceof GenericsElement genericsElement) {
-                generics = genericsElement.getGenerics();
-                continue;
-            }
-            if (element instanceof ArgumentElement argumentElement) {
-                arguments = argumentElement.getVariables();
-                continue;
-            }
-            if (element instanceof ModifierElement modifierElement) {
-                ModifierType modifierType = modifierElement.getModifier();
-                if (modifierType.isAccessModifier()) {
-                    accessModifier = AccessModifier.valueOf(modifierType.name());
-                    continue;
-                }
-                modifiers.add(modifierType);
+
+            if(element instanceof ScopeElement scopeElement) {
+                scope = new Scope(scopeElement.getValue());
+                //TODO: parse class recursive
             }
         }
 
-        if (name == null || type == null) throw new RuntimeException("class parse failed");
+        Checks.notNull(type, "Classtype");
+        if(name == null || scope == null) throw new RuntimeException("name or scope cannot be null"); //TODO: replace with better exception
+        AbstractClazz abstractClazz = new AbstractClazz(javaFile,
+            name,
+            accessModifier,
+            otherModifiers.toArray(ModifierType[]::new),
+            parent, superClazz,
+            superInterfaces.toArray(ClazzName[]::new),
+            scope);
 
         return switch (type) {
-            case STANDARD -> Optional.of(new StandardClazz(rootFile, parent, accessModifier, name, modifiers, extendsClazz, implementsClazzes, generics, modifiers.contains(ModifierType.ABSTRACT)));
-            default -> Optional.empty();
+            case STANDARD -> new StandardClazz(abstractClazz, otherModifiers.contains(ModifierType.ABSTRACT));
+            case ENUM -> new EnumClazz(abstractClazz);
+            case RECORD -> new RecordClazz(abstractClazz);
+            case INTERFACE -> new InterfaceClazz(abstractClazz);
         };
     }
+
+    private static ParseReturn parseClazzName(@NotNull Buffer<AbstractElement> buffer, int index) {
+        ClazzName name;
+        if(buffer.get(++index) instanceof NoneElement noneElement) {
+            if(buffer.get(index+1) instanceof GenericsElement genericsElement) {
+                name = new GenericClazzName(noneElement.getValue(), genericsElement.getGenerics());
+                ++index;
+            }else {
+                name = new ClazzName(noneElement.getValue());
+            }
+        }else {
+            --index;
+            throw new RuntimeException(
+                "cannot find classname"); //TODO: replace with better exception
+        }
+        return new ParseReturn(name, index);
+    }
+
+    private record ParseReturn(ClazzName name, int index) {}
 }

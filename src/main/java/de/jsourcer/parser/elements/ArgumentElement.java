@@ -1,40 +1,32 @@
 package de.jsourcer.parser.elements;
 
-import de.jsourcer.parser.misc.IndexedCharArray;
+import de.jsourcer.parser.misc.FunctionalCharArray;
 import de.jsourcer.parser.objects.Variable;
+import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ArgumentElement extends AbstractElement {
-    private final List<Variable> variables;
 
-    public ArgumentElement(@NotNull String value, @NotNull List<Variable> variables) {
+    private final Variable[] variables;
+
+    public ArgumentElement(@NotNull String value, @NotNull Variable[] variables) {
         super(value);
         this.variables = variables;
     }
 
     @NotNull
-    public List<Variable> getVariables() {
-        return variables;
+    public static AbstractElement parse(@NotNull FunctionalCharArray charArray) {
+        charArray.startStringBuilder();
+        charArray.indexLoop((character, integer) -> character == ')');
+        String value = charArray.stopAndGetBuilder();
+        return new ArgumentElement(value, Arrays
+            .stream(value.split(","))
+            .map(Variable::fromString)
+            .toArray(Variable[]::new));
     }
 
     @NotNull
-    public static AbstractElement parse(@NotNull IndexedCharArray charArray) {
-        List<Variable> variables = new ArrayList<>();
-        charArray.modifyIndex(-1);
-        StringBuilder builder = new StringBuilder();
-        charArray.indexLoop((character, integer) -> {
-            builder.append(character);
-            return character == ')';
-        });
-        String value = builder.toString();
-        for (String c : value.split(",")) {
-            String[] sides = c.trim().split("  *");
-            if (sides.length != 2) throw new RuntimeException("parsing from Arguments failed");
-            variables.add(new Variable(sides[0], sides[1]));
-        }
-        return new ArgumentElement(value, variables);
+    public Variable[] getVariables() {
+        return variables;
     }
 }
