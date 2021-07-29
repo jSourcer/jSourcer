@@ -40,7 +40,7 @@ public class ElementReader {
                 return true;
             }
 
-            if (Character.isWhitespace(character)) {
+            if (Character.isWhitespace(character) || character == ',') {
                 if(elementBuilder.isEmpty()) return false;
                 saveElement();
                 return true;

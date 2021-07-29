@@ -10,7 +10,7 @@ public record Variable(String type, String name) {
     }
 
     public static Variable fromString(@NotNull String value) {
-        String[] sides = value.trim().split("  *");
+        String[] sides = value.trim().split("\\s+");
         if (sides.length != 2) {
             throw new RuntimeException("parsing from Arguments failed");
         }

@@ -5904,10 +5904,10 @@ public class InventoryClickListener implements Listener {
 						return;
 					}
 
-					if (Extras.hasItem(uuid, "Test-Premium", 0)) {
-						p.sendMessage(LobbySystem.prefix + "§cDu hast dir bereits 1 mal Test-Premium geholt!");
+					if (Extras.hasItem(uuid, "TestParser-Premium", 0)) {
+						p.sendMessage(LobbySystem.prefix + "§cDu hast dir bereits 1 mal TestParser-Premium geholt!");
 					} else {
-						Extras.setItem(uuid, "Test-Premium", 0, true);
+						Extras.setItem(uuid, "TestParser-Premium", 0, true);
 
 						Rang.setRang(uuid, "BungeeCord", RangType.fromString(oldrang), RangType.PREMIUM, 86400000L);
 

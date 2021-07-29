@@ -25,7 +25,7 @@ public class AbstractElement {
                 ClazzType.getType(value));
             case "implements" -> new ImplementsElement(value);
             case "extends" -> new ExtendsElement(value);
-            default -> NoneElement.parse(value);
+            default -> new NoneElement(value);
         };
     }
 

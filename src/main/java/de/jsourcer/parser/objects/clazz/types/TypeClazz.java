@@ -13,11 +13,7 @@ public class TypeClazz extends AbstractClazz {
             clazz.getParentClazz().isPresent() ? clazz.getParentClazz().get() : null,
             clazz.getSuperClazz().isPresent() ? clazz.getSuperClazz().get() : null,
             clazz.getSuperInterfaces(),
-            clazz.getScope());
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
+            clazz.getScope(),
+            clazz.getArguments().isPresent() ? clazz.getArguments().get() : null);
     }
 }

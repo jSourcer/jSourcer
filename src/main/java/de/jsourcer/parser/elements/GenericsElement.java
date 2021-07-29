@@ -14,7 +14,6 @@ public class GenericsElement extends AbstractElement{
         this.generics = generics;
     }
 
-    //TODO: parse generics with '&'
     public static AbstractElement parse(@NotNull FunctionalCharArray charArray) {
         charArray.startStringBuilder();
         CharacterCounter.charArrayLoopCount(1, '<', '>', charArray, false);

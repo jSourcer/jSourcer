@@ -1,6 +1,7 @@
 package de.jsourcer.parser.objects.clazz;
 
 import de.jsourcer.parser.elements.AbstractElement;
+import de.jsourcer.parser.elements.ArgumentElement;
 import de.jsourcer.parser.elements.ClazzElement;
 import de.jsourcer.parser.elements.ExtendsElement;
 import de.jsourcer.parser.elements.GenericsElement;
@@ -10,9 +11,10 @@ import de.jsourcer.parser.elements.NoneElement;
 import de.jsourcer.parser.elements.ScopeElement;
 import de.jsourcer.parser.misc.Buffer;
 import de.jsourcer.parser.objects.AccessModifier;
+import de.jsourcer.parser.objects.Scope;
+import de.jsourcer.parser.objects.Variable;
 import de.jsourcer.parser.objects.clazz.name.ClazzName;
 import de.jsourcer.parser.objects.clazz.name.GenericClazzName;
-import de.jsourcer.parser.objects.Scope;
 import de.jsourcer.parser.objects.clazz.types.EnumClazz;
 import de.jsourcer.parser.objects.clazz.types.InterfaceClazz;
 import de.jsourcer.parser.objects.clazz.types.RecordClazz;
@@ -22,7 +24,6 @@ import de.jsourcer.parser.types.ClazzType;
 import de.jsourcer.parser.types.ModifierType;
 import de.jsourcer.parser.util.Checks;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
@@ -37,13 +38,13 @@ public class AbstractClazz {
     protected final ClazzName superClazz;
     protected final ClazzName[] superInterfaces;
     protected final Scope scope;
-
+    protected final Variable[] arguments;
 
     public AbstractClazz(@NotNull JavaFile parentFile, @NotNull ClazzName name,
         @NotNull AccessModifier accessModifier, @NotNull ModifierType[] otherModifier,
         @Nullable AbstractClazz parentClazz,
         ClazzName superClazz, ClazzName[] superInterfaces,
-        @NotNull Scope scope) {
+        @NotNull Scope scope, @Nullable Variable[] arguments) {
         this.parentFile = parentFile;
         this.name = name;
         this.accessModifier = accessModifier;
@@ -52,6 +53,7 @@ public class AbstractClazz {
         this.superClazz = superClazz;
         this.superInterfaces = superInterfaces;
         this.scope = scope;
+        this.arguments = arguments;
     }
 
     @NotNull
@@ -94,18 +96,8 @@ public class AbstractClazz {
         return superInterfaces;
     }
 
-    @Override
-    public String toString() {
-        return "AbstractClazz{" +
-            "parentFile=" + parentFile +
-            ", name=" + name +
-            ", accessModifier=" + accessModifier +
-            ", otherModifier=" + Arrays.toString(otherModifier) +
-            ", parentClazz=" + parentClazz +
-            ", superClazz=" + superClazz +
-            ", superInterfaces=" + Arrays.toString(superInterfaces) +
-            ", scope=" + scope +
-            '}';
+    public Optional<Variable[]> getArguments() {
+        return Optional.ofNullable(arguments);
     }
 
     public static AbstractClazz parse(@NotNull Buffer<AbstractElement> buffer, @Nullable AbstractClazz parent, @NotNull JavaFile javaFile) {
@@ -116,6 +108,7 @@ public class AbstractClazz {
         List<ClazzName> superInterfaces = new ArrayList<>();
         Scope scope = null;
         ClazzType type = null;
+        Variable[] arguments = null;
 
         for (int i = 0; i < buffer.size(); i++) {
             AbstractElement element = buffer.get(i);
@@ -144,6 +137,7 @@ public class AbstractClazz {
                 ParseReturn parseReturn = parseClazzName(buffer, i);
                 i = parseReturn.index;
                 superClazz = parseReturn.name;
+                continue;
             }
 
             if(element instanceof ImplementsElement) {
@@ -152,6 +146,12 @@ public class AbstractClazz {
                     i = parseReturn.index;
                     superInterfaces.add(parseReturn.name);
                 } while (buffer.get(i+1) instanceof NoneElement);
+                continue;
+            }
+
+            if(element instanceof ArgumentElement argumentElement) {
+                arguments = argumentElement.getVariables();
+                continue;
             }
 
             if(element instanceof ScopeElement scopeElement) {
@@ -168,7 +168,8 @@ public class AbstractClazz {
             otherModifiers.toArray(ModifierType[]::new),
             parent, superClazz,
             superInterfaces.toArray(ClazzName[]::new),
-            scope);
+            scope,
+            arguments);
 
         return switch (type) {
             case STANDARD -> new StandardClazz(abstractClazz, otherModifiers.contains(ModifierType.ABSTRACT));

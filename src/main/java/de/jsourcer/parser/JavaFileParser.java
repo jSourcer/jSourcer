@@ -9,6 +9,7 @@ import de.jsourcer.parser.elements.ScopeElement;
 import de.jsourcer.parser.elements.SeparatorElement;
 import de.jsourcer.parser.misc.Buffer;
 import de.jsourcer.parser.misc.FunctionalCharArray;
+import de.jsourcer.parser.objects.clazz.AbstractClazz;
 import de.jsourcer.parser.objects.javafile.JavaFile;
 import de.jsourcer.parser.objects.javafile.header.FileHeader;
 import de.jsourcer.parser.types.ModifierType;
@@ -25,7 +26,7 @@ public class JavaFileParser {
         this.charArray = charArray;
     }
 
-    public void parse() {
+    public JavaFile parse() {
         ElementReader reader = new ElementReader();
         JavaFile javaFile = null;
 
@@ -47,9 +48,11 @@ public class JavaFileParser {
             }
             if (reader.getBuffer().getLatest() instanceof ScopeElement) {
                 Checks.notNull(javaFile, "javaFile");
+                javaFile.getClazzes().add(AbstractClazz.parse(reader.getBuffer(), null, javaFile));
                 reader.getBuffer().clear();
             }
         }
+        return javaFile;
     }
 
     private boolean isHeader(@NotNull ElementReader reader) {

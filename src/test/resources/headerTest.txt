@@ -2,14 +2,28 @@ package test.io;
 
 import static de.jsourcer.parser.JavaFileParser;
 import de.jsourcer.parser.misc.FunctionalCharArray;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-abstract class test<H, T>(String test, String        hu)extends String implements Lol, Hi, Hola{
+abstract class test
+<H
+
+,
+
+ T        >
+
+ (String
+         test, String
+hu)extends String
+
+       implements Lol
+        ,               Hi, Hola
+
+        {
 
 }
 
